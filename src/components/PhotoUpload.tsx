@@ -9,13 +9,15 @@ import { Photo } from './PhotoGallery';
 interface PhotoUploadProps {
   onAddPhoto: (photo: Photo) => void;
   onClose: () => void;
+  albums: string[];
 }
 
-export const PhotoUpload = ({ onAddPhoto, onClose }: PhotoUploadProps) => {
+export const PhotoUpload = ({ onAddPhoto, onClose, albums }: PhotoUploadProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [previewUrl, setPreviewUrl] = useState('');
   const [isDragging, setIsDragging] = useState(false);
+  const [selectedAlbum, setSelectedAlbum] = useState(albums[0] || 'Personal');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,6 +39,7 @@ export const PhotoUpload = ({ onAddPhoto, onClose }: PhotoUploadProps) => {
       url: previewUrl,
       title: title || 'Untitled Photo',
       description: description || undefined,
+      album: selectedAlbum,
     };
     
     onAddPhoto(newPhoto);
@@ -165,6 +168,30 @@ export const PhotoUpload = ({ onAddPhoto, onClose }: PhotoUploadProps) => {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="album" className="text-sm font-medium">Album</Label>
+              <select
+                id="album"
+                value={selectedAlbum}
+                onChange={(e) => setSelectedAlbum(e.target.value)}
+                className="w-full px-3 py-2 bg-background border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {albums.map((album) => (
+                  <option key={album} value={album}>
+                    {album}
+                  </option>
+                ))}
+                <option value="new">+ Create New Album</option>
+              </select>
+              {selectedAlbum === 'new' && (
+                <Input
+                  placeholder="Enter new album name"
+                  onChange={(e) => setSelectedAlbum(e.target.value)}
+                  className="mt-2"
+                />
+              )}
             </div>
           </div>
 

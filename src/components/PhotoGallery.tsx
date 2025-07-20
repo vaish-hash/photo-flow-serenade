@@ -10,6 +10,7 @@ export interface Photo {
   url: string;
   title: string;
   description?: string;
+  album: string;
 }
 
 const initialPhotos: Photo[] = [
@@ -17,31 +18,36 @@ const initialPhotos: Photo[] = [
     id: '1',
     url: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=800&h=600&fit=crop',
     title: 'Mountain Sunset',
-    description: 'Beautiful sunset over the mountains'
+    description: 'Beautiful sunset over the mountains',
+    album: 'Nature'
   },
   {
     id: '2',
     url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=600&fit=crop',
     title: 'Portrait Session',
-    description: 'Natural light portrait photography'
+    description: 'Natural light portrait photography',
+    album: 'Portraits'
   },
   {
     id: '3',
     url: 'https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=600&fit=crop',
     title: 'Modern Living',
-    description: 'Contemporary interior design'
+    description: 'Contemporary interior design',
+    album: 'Home'
   },
   {
     id: '4',
     url: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&h=600&fit=crop',
     title: 'Wildlife',
-    description: 'Deer in their natural habitat'
+    description: 'Deer in their natural habitat',
+    album: 'Nature'
   },
   {
     id: '5',
     url: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=800&h=600&fit=crop',
     title: 'Feline Friend',
-    description: 'Peaceful cat moment'
+    description: 'Peaceful cat moment',
+    album: 'Pets'
   },
 ];
 
@@ -51,6 +57,10 @@ export const PhotoGallery = () => {
   const [showSlideshow, setShowSlideshow] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showMusicPlayer, setShowMusicPlayer] = useState(false);
+  const [selectedAlbum, setSelectedAlbum] = useState<string>('All');
+
+  const albums = ['All', ...Array.from(new Set(photos.map(photo => photo.album)))];
+  const filteredPhotos = selectedAlbum === 'All' ? photos : photos.filter(photo => photo.album === selectedAlbum);
 
   const handleAddPhoto = (newPhoto: Photo) => {
     setPhotos(prev => [...prev, newPhoto]);
@@ -68,7 +78,7 @@ export const PhotoGallery = () => {
   if (showSlideshow) {
     return (
       <Slideshow 
-        photos={photos} 
+        photos={filteredPhotos} 
         onClose={handleCloseSlideshow}
         startIndex={selectedPhoto || 0}
       />
@@ -87,7 +97,7 @@ export const PhotoGallery = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Photo Flow</h1>
-                <p className="text-sm text-muted-foreground">{photos.length} photos</p>
+                <p className="text-sm text-muted-foreground">{filteredPhotos.length} photos in {selectedAlbum}</p>
               </div>
             </div>
             
@@ -129,10 +139,27 @@ export const PhotoGallery = () => {
         </div>
       )}
 
+      {/* Album Navigation */}
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {albums.map((album) => (
+            <Button
+              key={album}
+              variant={selectedAlbum === album ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedAlbum(album)}
+              className="whitespace-nowrap"
+            >
+              {album}
+            </Button>
+          ))}
+        </div>
+      </div>
+
       {/* Photo Grid */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 pb-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {photos.map((photo, index) => (
+          {filteredPhotos.map((photo, index) => (
             <div
               key={photo.id}
               className="group relative bg-card rounded-xl overflow-hidden shadow-elegant hover:shadow-glow transition-all duration-300 transform hover:scale-[1.02] cursor-pointer"
@@ -171,6 +198,7 @@ export const PhotoGallery = () => {
         <PhotoUpload
           onAddPhoto={handleAddPhoto}
           onClose={() => setShowUpload(false)}
+          albums={albums.filter(album => album !== 'All')}
         />
       )}
     </div>
